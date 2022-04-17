@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
+    <meta name="description"
+        content="Calculadora de Redes Subredes y numeros de host">
+    <link rel="stylesheet" href="./style.css">
+    <link rel="shortcut icon" type="image/jpg" href='./Assets/favicon.png' />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculador de Redes</title>
+</head>
+<body>
+    <header id="main-header" class="text-white p-4 header">
+        <div class="container">
+            <div class="row g-3">
+                <h1 class="col-auto">Network Calculator</h1>
+                <a class="col-auto" href="https://www.avocadosnetwork.com/Nosotros.html" target="_blank">By Avocado's Network</a>
+            </div>
+        </div>
+    </header>
+
+
+    <main class='main'>
+        <div id="Float-alert">
+
+        </div>
+        <div class="container">
+            <h2 class="title mb-5">Calculadora Redes IPV4</h2>
+        </div>
+
+        <div class="container container-body">
+            <form id="formRedes0" class="row  justify-content-center g-3">
+                <div class="col-auto">
+                    <input class="input form-control" type="number" id="oct1" name="octeto1" placeholder="0" onchange="valuePrimerOcteto(this.value)">
+                </div>
+                <div class="col-auto">
+                    <input class="form-control" type="number" id="oct2" name="octeto2" placeholder="0">
+                </div>
+                <div class="col-auto">
+                    <input class="form-control" type="number" id="oct3" name="octeto3" placeholder="0">
+                </div>
+                <div class="col-auto">
+                    <input class="form-control" type="number" id="oct4" name="octeto4" placeholder="0" disabled="true">
+                </div>
+                <div class="col-auto">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">/</span>
+                        <input type="number" class="form-control" aria-describedby="basic-addon1" id="diagonal">
+                    </div>
+                </div>
+                <div id="formRedes" class="col-auto">
+                    <button id="btnRedes" class="btn btn-dark"> Calcular Redes</button>
+                </div>
+            </form>   
+
+            <div class="container">
+                <form id="formRedes2" class="row justify-content-center  g-3" style="visibility: hidden">
+                    <div  id="divSubred" class="col-auto">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text" id="basic-addon1">Subred:</span>
+                            <input type="text" class="form-control" aria-describedby="basic-addon1" id="inputSubred" placeholder="0">
+                            <button id="btnsubredes" class="btn btn-outline-secondary">Calcular</button>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="input-group mb-3">
+                            <span class="input-group-text" id="basic-addon2">Host Personalizado:</span>
+                            <input type="number" class="form-control" aria-describedby="basic-addon2" id="inputHostP" placeholder="0">
+                            <button id="btnHostP" class="btn btn-outline-success">Mostrar</button>
+                        </div>
+                    </div>
+                    <div id="btnVLSM" class="col-auto">
+                        <button class="btn btn-dark">Calculadora VLSM</button>
+                    </div>
+                    <div id="divLimpiar"  class="col-auto">
+                        <button class="btn btn-danger">Limpiar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="container">
+            <hr>
+        </div>
+
+        <div class="container">
+            <div id="formRedesVLSM" class="row justify-content-center" style="visibility: hidden">
+                <div class="col-auto">
+                    <div class="input-group">
+                        <span class="input-group-text" id="basic-addon3">Numero de Subredes:</span>
+                        <input type="number" class="form-control" aria-describedby="basic-addon3" id="inputVLSM" placeholder="0">
+                        <button id="btnVLSM1" class="btn btn-outline-primary">Iniciar</button>
+                    </div>
+                </div>
+                <div class="col-auto" style="visibility: hidden">
+                    <div id="divSig" class="input-group">
+                        <span class="input-group-text" id="basic-addon4">ASD:</span>
+                        <input type="number" class="form-control" aria-describedby="basic-addon4" id="inputVLSM2" placeholder="Numero de Host">
+                        <button id="btnVLSM2" class="btn btn-outline-info">Siguiente</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <h2 class="title mb-5">Resultados</h2>
+        </div>
+        <div class="container container-results" id="items" style="visibility: hidden">
+            <div class="accordion" id="accordionSubred">
+                <!-- aqui van las weas -->
+            </div>
+        </div>
+
+        <div id="imagenweona" class="container">
+            <center>
+                <img class="img-fluid" src="https://media4.giphy.com/media/l4pTjiQcFKDddQkGQ/giphy.gif?cid=ecf05e470eb34b91f9735303d3910f831007b2709977ecf5&amp;rid=giphy.gif&amp;ct=s">
+            </center>
+        </div>        
+    </main>
+    <footer>
+        <section class="first_footer">
+            <section class="left">
+                <ul>
+                    <li><a href="mailto:support@avocadosnetwork.com" target="_blank">Contact us</a></li>
+                    <li><a href="https://github.com/AvocadosNetworkLabs" target="_blank">Github</a></li>
+                    <li><a href="https://instagram.com/binary.avocado" target="_blank">Instagram</a></li>
+                </ul>
+            </section>
+            <section class="right">
+                <img src="./Assets/logo_peque_gris.png" width="150px" height="60px" alt="logo avocados network 2021" />
+            </section>
+        </section>
+        <p>
+            © 2021 Avocado's Network. All Rights Reserved.
+
+            Developed and deploy with 🥑 by <a href="https://github.com/DiPa71" target="_blank">@DiPa71</a>, <a
+                href="https://github.com/NaH-22" target="_blank">@NaH-22</a> and <a href="https://github.com/john024x"
+                target="_blank">@John024x</a>
+        </p>
+    </footer>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8" crossorigin="anonymous"></script>
+<script src="./index.js"></script>
+</html>

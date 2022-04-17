@@ -1,0 +1,99 @@
+.form-control{
+    border: 1px solid rgb(0, 0, 0, 0.5)
+}
+
+.main{
+    position: relative;
+}
+a{
+    text-decoration: none !important; 
+    color: #000;
+}
+.header{
+    color:rgb(46, 46, 46) !important;
+    display: block;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 100%;
+    box-shadow: none;
+    background-color: #74d680;
+    height: 80px !important;
+    overflow: hidden;
+    letter-spacing: 3px;
+    font-weight: bold;
+}
+
+.header a{
+    text-decoration: none;
+    color: rgb(255, 255, 255);
+    letter-spacing: 0px;
+}
+
+#Float-alert{
+    position: absolute;
+    top: 0;
+    right: 20px;
+}
+.container-body{
+    background-color:rgb(206, 206, 206) ;
+    border-radius: 10px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.title{
+    margin-top: 50px;
+    color:rgb(0, 0, 0);
+    font-weight: bold;
+}
+#btnRedes{
+    background-color: #fff;
+    border: 1px solid #000;
+    color: #000;
+}
+
+#btnRedes:hover{
+    background-color: #000;
+    border: 1px solid #fff;
+    color: #fff;
+    transition: 1s;
+}
+.container-results{
+    background-color: rgb(206, 206, 206);
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 50px;
+}
+.accordion-button{
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+footer{
+    margin-top: 200px;
+    background-color: #c1f68a;
+    }
+    footer p{
+        margin: 0 !important;
+        text-align: center;
+    }
+    footer p a{
+        text-decoration: none;
+    }
+    footer .first_footer{
+        display:flex;
+        width: 100%;
+        height: 150px;
+        background-color:#c1f68a;
+    }
+    footer section{
+        display: flex;
+        width: 50%;
+        justify-content: center;
+        align-items: center;
+    }
+    footer .left ul{
+        font-size: 1.4rem;
+        font-weight: 500;
+        line-height: 1.8rem;
+        list-style: none;
+    }
