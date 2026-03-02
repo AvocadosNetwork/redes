@@ -1,182 +1,1243 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Calculadora de Redes IPv4: subredes, hosts, VLSM y más. Herramienta gratuita de Avocado's Network.">
+    <meta name="description"
+        content="Network Calculator by Avocado's Network — Calcula subredes IPv4, VLSM y hosts al instante desde tu navegador.">
     <title>Network Calculator — Avocado's Network</title>
-    <link rel="shortcut icon" type="image/png" href='./Assets/favicon.png' />
-    <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
+    <link rel="shortcut icon" type="image/png" href="./Assets/favicon.png">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Styles -->
-    <link rel="stylesheet" href="./style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ============================
+           VARIABLES & RESET
+           ============================ */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --green-primary: #74d680;
+            --green-dark: #4cad5a;
+            --green-darker: #3a8a45;
+            --green-light: #c1f68a;
+            --green-lighter: #e8fde7;
+            --green-glow: rgba(116, 214, 128, 0.4);
+            --text-primary: #1a2e1b;
+            --text-secondary: #4a6650;
+            --text-muted: #7a9480;
+            --bg-body: #f4f7f4;
+            --bg-card: #ffffff;
+            --border-color: rgba(74, 102, 80, 0.18);
+            --shadow-sm: 0 2px 8px rgba(26, 46, 27, 0.08);
+            --shadow-md: 0 6px 28px rgba(26, 46, 27, 0.12);
+            --shadow-lg: 0 12px 48px rgba(26, 46, 27, 0.18);
+            --radius-sm: 8px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --radius-pill: 999px;
+            --transition: 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* ============================
+           NAV
+           ============================ */
+        .nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 5%;
+            height: 68px;
+            background: rgba(244, 247, 244, 0.82);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--border-color);
+            transition: background var(--transition), box-shadow var(--transition);
+        }
+
+        .nav.scrolled {
+            background: rgba(244, 247, 244, 0.96);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-logo-dot {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-sm);
+            background: linear-gradient(135deg, var(--green-primary), var(--green-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 1rem;
+            color: var(--text-primary);
+            box-shadow: 0 2px 8px var(--green-glow);
+        }
+
+        .nav-logo-text {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: 0.02em;
+        }
+
+        .nav-logo-text span {
+            color: var(--green-dark);
+        }
+
+        .nav-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, var(--green-primary), var(--green-dark));
+            color: var(--text-primary);
+            font-weight: 700;
+            font-size: 0.82rem;
+            letter-spacing: 0.04em;
+            padding: 9px 20px;
+            border-radius: var(--radius-pill);
+            box-shadow: 0 2px 12px var(--green-glow);
+            transition: all var(--transition);
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 22px var(--green-glow);
+            color: var(--text-primary);
+        }
+
+        /* ============================
+           HERO
+           ============================ */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            padding: 100px 5% 60px;
+            text-align: center;
+        }
+
+        /* Animated gradient background */
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 50% 0%, rgba(116, 214, 128, 0.25) 0%, transparent 70%),
+                radial-gradient(ellipse 60% 50% at 80% 80%, rgba(193, 246, 138, 0.2) 0%, transparent 60%),
+                radial-gradient(ellipse 50% 40% at 20% 60%, rgba(116, 214, 128, 0.15) 0%, transparent 60%);
+            animation: blobShift 8s ease-in-out infinite alternate;
+        }
+
+        @keyframes blobShift {
+            from {
+                transform: scale(1) rotate(0deg);
+            }
+
+            to {
+                transform: scale(1.06) rotate(2deg);
+            }
+        }
+
+        /* Floating orbs */
+        .hero-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .hero-orb-1 {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, var(--green-primary), transparent 70%);
+            top: -100px;
+            right: -100px;
+            animation: floatOrb 6s ease-in-out infinite alternate;
+        }
+
+        .hero-orb-2 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, var(--green-light), transparent 70%);
+            bottom: -80px;
+            left: -60px;
+            animation: floatOrb 8s ease-in-out infinite alternate-reverse;
+        }
+
+        @keyframes floatOrb {
+            from {
+                transform: translate(0, 0) scale(1);
+            }
+
+            to {
+                transform: translate(20px, -20px) scale(1.08);
+            }
+        }
+
+        /* Grid dots background */
+        .hero-grid {
+            position: absolute;
+            inset: 0;
+            background-image:
+                radial-gradient(circle, rgba(74, 102, 80, 0.15) 1px, transparent 1px);
+            background-size: 36px 36px;
+            mask-image: radial-gradient(ellipse at center, black 20%, transparent 80%);
+            -webkit-mask-image: radial-gradient(ellipse at center, black 20%, transparent 80%);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 760px;
+            margin: 0 auto;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--bg-card);
+            border: 1.5px solid var(--border-color);
+            color: var(--green-darker);
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 6px 14px;
+            border-radius: var(--radius-pill);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 28px;
+            animation: fadeInDown 0.6s ease both;
+        }
+
+        .hero-badge .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--green-primary);
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(0.8);
+            }
+        }
+
+        .hero-title {
+            font-size: clamp(2.6rem, 6vw, 4.2rem);
+            font-weight: 900;
+            line-height: 1.08;
+            letter-spacing: -0.04em;
+            color: var(--text-primary);
+            margin-bottom: 24px;
+            animation: fadeInUp 0.7s 0.1s ease both;
+        }
+
+        .hero-title .highlight {
+            background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-primary) 60%, var(--green-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: inline-block;
+        }
+
+        .hero-subtitle {
+            font-size: 1.1rem;
+            font-weight: 400;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            max-width: 560px;
+            margin: 0 auto 40px;
+            animation: fadeInUp 0.7s 0.2s ease both;
+        }
+
+        .hero-actions {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.7s 0.3s ease both;
+        }
+
+        .btn-try {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, var(--green-primary), var(--green-dark));
+            color: var(--text-primary);
+            font-weight: 800;
+            font-size: 1rem;
+            letter-spacing: 0.01em;
+            padding: 15px 36px;
+            border-radius: var(--radius-pill);
+            box-shadow: 0 4px 24px var(--green-glow);
+            transition: all var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-try::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent 40%, rgba(255, 255, 255, 0.18) 100%);
+            transition: opacity var(--transition);
+            opacity: 0;
+        }
+
+        .btn-try:hover::before {
+            opacity: 1;
+        }
+
+        .btn-try:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 36px var(--green-glow);
+            color: var(--text-primary);
+        }
+
+        .btn-try:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-try .arrow {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 26px;
+            height: 26px;
+            background: rgba(26, 46, 27, 0.15);
+            border-radius: 50%;
+            font-size: 0.75rem;
+            transition: transform var(--transition);
+        }
+
+        .btn-try:hover .arrow {
+            transform: translateX(3px);
+        }
+
+        .btn-ghost {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding: 14px 28px;
+            border-radius: var(--radius-pill);
+            border: 1.5px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition);
+        }
+
+        .btn-ghost:hover {
+            border-color: var(--green-primary);
+            color: var(--green-darker);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        /* ============================
+           HERO VISUAL (CARD PREVIEW)
+           ============================ */
+        .hero-visual {
+            position: relative;
+            max-width: 640px;
+            margin: 60px auto 0;
+            animation: fadeInUp 0.8s 0.4s ease both;
+        }
+
+        .preview-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            border: 1.5px solid var(--border-color);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .preview-topbar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 14px 18px;
+            background: var(--green-lighter);
+            border-bottom: 1.5px solid var(--border-color);
+        }
+
+        .preview-dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+        }
+
+        .pd-red {
+            background: #ff5f57;
+        }
+
+        .pd-yellow {
+            background: #febc2e;
+        }
+
+        .pd-green {
+            background: var(--green-primary);
+        }
+
+        .preview-url {
+            flex: 1;
+            margin-left: 10px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: var(--radius-pill);
+            padding: 4px 14px;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            letter-spacing: 0.02em;
+        }
+
+        .preview-body {
+            padding: 24px;
+        }
+
+        .preview-header-bar {
+            background: linear-gradient(135deg, var(--green-primary), var(--green-dark));
+            border-radius: var(--radius-md);
+            padding: 12px 18px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .preview-header-bar .ph-title {
+            font-size: 0.8rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-primary);
+        }
+
+        .preview-header-bar .ph-badge {
+            font-size: 0.65rem;
+            background: rgba(255, 255, 255, 0.35);
+            border-radius: var(--radius-pill);
+            padding: 3px 10px;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .preview-inputs {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr) auto auto;
+            gap: 10px;
+            margin-bottom: 16px;
+            align-items: end;
+        }
+
+        .preview-field {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .preview-field-label {
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .preview-field-input {
+            height: 36px;
+            background: var(--bg-body);
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .preview-field-input.highlight {
+            border-color: var(--green-primary);
+            background: rgba(116, 214, 128, 0.1);
+        }
+
+        .preview-btn-mock {
+            height: 36px;
+            background: linear-gradient(135deg, var(--green-primary), var(--green-dark));
+            border-radius: var(--radius-pill);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            padding: 0 14px;
+            white-space: nowrap;
+            align-self: end;
+        }
+
+        .preview-result {
+            background: var(--green-lighter);
+            border-radius: var(--radius-md);
+            border: 1.5px solid var(--border-color);
+            padding: 14px 16px;
+        }
+
+        .preview-result-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+
+        .preview-result-rows {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .preview-result-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .prr-label {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .prr-value {
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--green-darker);
+            background: rgba(116, 214, 128, 0.2);
+            padding: 2px 8px;
+            border-radius: var(--radius-pill);
+        }
+
+        .float-badge {
+            position: absolute;
+            background: var(--bg-card);
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            padding: 10px 16px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .float-badge .fb-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: var(--radius-sm);
+            background: linear-gradient(135deg, var(--green-primary), var(--green-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .float-badge-1 {
+            bottom: -18px;
+            left: -28px;
+            animation: floatBadge 4s ease-in-out infinite alternate;
+        }
+
+        .float-badge-2 {
+            top: 30px;
+            right: -30px;
+            animation: floatBadge 5s ease-in-out infinite alternate-reverse;
+        }
+
+        @keyframes floatBadge {
+            from {
+                transform: translateY(0);
+            }
+
+            to {
+                transform: translateY(-8px);
+            }
+        }
+
+        /* ============================
+           FEATURES SECTION
+           ============================ */
+        .features {
+            padding: 100px 5%;
+            position: relative;
+        }
+
+        .section-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--green-darker);
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: clamp(1.8rem, 4vw, 2.6rem);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: var(--text-primary);
+            margin-bottom: 14px;
+            line-height: 1.15;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1rem;
+            color: var(--text-muted);
+            max-width: 520px;
+            margin: 0 auto 64px;
+            line-height: 1.65;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            max-width: 1080px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 32px 28px;
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--green-primary), var(--green-light));
+            opacity: 0;
+            transition: opacity var(--transition);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-md);
+            border-color: rgba(116, 214, 128, 0.4);
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: var(--radius-md);
+            background: var(--green-lighter);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            transition: background var(--transition), transform var(--transition);
+        }
+
+        .feature-card:hover .feature-icon {
+            background: linear-gradient(135deg, var(--green-primary), var(--green-dark));
+            transform: scale(1.08) rotate(-4deg);
+        }
+
+        .feature-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            letter-spacing: -0.01em;
+        }
+
+        .feature-desc {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            line-height: 1.65;
+        }
+
+        /* ============================
+           CTA SECTION
+           ============================ */
+        .cta-section {
+            padding: 80px 5% 100px;
+        }
+
+        .cta-inner {
+            max-width: 740px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, var(--green-primary) 0%, var(--green-dark) 100%);
+            border-radius: 2rem;
+            padding: 64px 48px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 12px 48px rgba(76, 173, 90, 0.4);
+        }
+
+        .cta-inner::before {
+            content: '';
+            position: absolute;
+            top: -60px;
+            right: -60px;
+            width: 270px;
+            height: 270px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.12);
+            pointer-events: none;
+        }
+
+        .cta-inner::after {
+            content: '';
+            position: absolute;
+            bottom: -80px;
+            left: -40px;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            pointer-events: none;
+        }
+
+        .cta-title {
+            font-size: clamp(1.8rem, 4vw, 2.4rem);
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            line-height: 1.15;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-desc {
+            font-size: 1rem;
+            color: rgba(26, 46, 27, 0.75);
+            margin-bottom: 36px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-cta-big {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--text-primary);
+            color: var(--green-primary);
+            font-weight: 800;
+            font-size: 1rem;
+            padding: 16px 38px;
+            border-radius: var(--radius-pill);
+            box-shadow: 0 4px 20px rgba(26, 46, 27, 0.3);
+            transition: all var(--transition);
+            position: relative;
+            z-index: 1;
+            letter-spacing: 0.01em;
+        }
+
+        .btn-cta-big:hover {
+            background: var(--bg-card);
+            color: var(--green-darker);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 32px rgba(26, 46, 27, 0.35);
+        }
+
+        /* ============================
+           FOOTER
+           ============================ */
+        footer {
+            background: linear-gradient(135deg, var(--green-light) 0%, var(--green-primary) 100%);
+            box-shadow: 0 -2px 20px rgba(74, 102, 80, 0.12);
+        }
+
+        .footer-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 40px 5%;
+            flex-wrap: wrap;
+            gap: 24px;
+        }
+
+        .footer-brand {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .footer-brand-name {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+        }
+
+        .footer-brand-sub {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 28px;
+            list-style: none;
+        }
+
+        .footer-links a {
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            transition: color var(--transition), transform var(--transition);
+            display: inline-block;
+        }
+
+        .footer-links a:hover {
+            color: var(--green-darker);
+            transform: translateY(-2px);
+        }
+
+        .footer-logo img {
+            width: 120px;
+            height: auto;
+            opacity: 0.85;
+            transition: opacity var(--transition);
+        }
+
+        .footer-logo img:hover {
+            opacity: 1;
+        }
+
+        .footer-copy {
+            background: rgba(0, 0, 0, 0.07);
+            text-align: center;
+            padding: 14px;
+            font-size: 0.76rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .footer-copy a {
+            color: var(--green-darker);
+            font-weight: 600;
+        }
+
+        /* ============================
+           ANIMATIONS
+           ============================ */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(22px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Scroll-triggered fade in for feature cards */
+        .fade-in-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .fade-in-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ============================
+           RESPONSIVE
+           ============================ */
+        @media (max-width: 768px) {
+            .hero {
+                padding: 90px 5% 50px;
+            }
+
+            .hero-title {
+                font-size: 2.2rem;
+            }
+
+            .preview-inputs {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .float-badge {
+                display: none;
+            }
+
+            .cta-inner {
+                padding: 44px 24px;
+            }
+
+            .footer-inner {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title {
+                font-size: 1.9rem;
+            }
+
+            .hero-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn-try,
+            .btn-ghost {
+                justify-content: center;
+            }
+        }
+    </style>
 </head>
+
 <body>
-    <header id="main-header" class="text-white header">
-        <div class="container">
-            <div class="row g-3 align-items-center justify-content-between">
-                <h1 class="col-auto">Network Calculator</h1>
-                <div class="col-auto d-flex gap-2 align-items-center">
-                    <a href="./landing.html" aria-label="Volver al inicio">← Inicio</a>
-                    <a href="https://www.avocadosnetwork.com/Nosotros.html" target="_blank" rel="noopener noreferrer">By Avocado's Network</a>
+
+    <!-- NAV -->
+    <nav class="nav" id="nav">
+        <a href="./index.html" class="nav-logo">
+            <div class="nav-logo-dot">N</div>
+            <span class="nav-logo-text">Network<span>Calc</span></span>
+        </a>
+        <a href="./calculator.html" class="nav-cta" id="nav-try-btn">
+            Try it out
+            <span style="font-size:0.9rem;">→</span>
+        </a>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero" id="hero">
+        <div class="hero-orb hero-orb-1"></div>
+        <div class="hero-orb hero-orb-2"></div>
+        <div class="hero-grid"></div>
+
+        <div style="width:100%;">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <span class="dot"></span>
+                    Herramienta gratuita de redes
+                </div>
+
+                <h1 class="hero-title">
+                    Calcula subredes<br>
+                    IPv4 <span class="highlight">al instante</span>
+                </h1>
+
+                <p class="hero-subtitle">
+                    Obtén máscara de subred, dirección de broadcast, hosts utilizables y más con solo ingresar tu IP y
+                    prefijo CIDR. También soporta VLSM.
+                </p>
+
+                <div class="hero-actions">
+                    <a href="./calculator.html" class="btn-try" id="try-it-out">
+                        Try it out
+                        <span class="arrow">→</span>
+                    </a>
+                    <a href="#features" class="btn-ghost">
+                        Ver funcionalidades
+                    </a>
                 </div>
             </div>
-        </div>
-    </header>
 
-    <!-- H1: Zona de alertas flotantes con aria-live para anunciar cambios de estado -->
-    <main class='main'>
-        <div id="Float-alert" role="status" aria-live="assertive" aria-atomic="true"></div>
-
-        <div class="container">
-            <h2 class="title mb-3">Calculadora Redes IPv4</h2>
-            <!-- H6: Instrucción visible para guiar al usuario sin requerir memoria -->
-            <p class="text-muted mb-4 text-center">Ingresa la dirección IP y el prefijo CIDR para comenzar.</p>
-        </div>
-
-        <div class="container container-body">
-            <form id="formRedes0" class="row justify-content-center g-3">
-                <!-- H5/H6: min/max explícitos, label visibles vía aria-label -->
-                <div class="col-auto">
-                    <label for="oct1" class="form-label input-label">Octeto 1</label>
-                    <input class="input form-control text-center" type="number" id="oct1" name="octeto1"
-                        placeholder="0" min="1" max="255"
-                        aria-label="Primer octeto (1-255)"
-                        onchange="valuePrimerOcteto(this.value)">
-                </div>
-                <div class="col-auto">
-                    <label for="oct2" class="form-label input-label">Octeto 2</label>
-                    <input class="form-control text-center" type="number" id="oct2" name="octeto2"
-                        placeholder="0" min="0" max="255"
-                        aria-label="Segundo octeto (0-255)">
-                </div>
-                <div class="col-auto">
-                    <label for="oct3" class="form-label input-label">Octeto 3</label>
-                    <input class="form-control text-center" type="number" id="oct3" name="octeto3"
-                        placeholder="0" min="0" max="255"
-                        aria-label="Tercer octeto (0-255)">
-                </div>
-                <div class="col-auto">
-                    <!-- H6: title explica por qué está deshabilitado -->
-                    <label for="oct4" class="form-label input-label">Octeto 4</label>
-                    <input class="form-control text-center" type="number" id="oct4" name="octeto4"
-                        placeholder="0" min="0" max="255" disabled
-                        title="El cuarto octeto es la dirección de red y se calcula automáticamente"
-                        aria-label="Cuarto octeto (calculado automáticamente)">
-                </div>
-                <div class="col-auto">
-                    <label for="diagonal" class="form-label input-label">Prefijo CIDR</label>
-                    <div class="input-group">
-                        <span class="input-group-text" id="cidr-addon">/</span>
-                        <input type="number" class="form-control" aria-describedby="cidr-addon"
-                            id="diagonal" placeholder="24" min="1" max="31"
-                            aria-label="Prefijo CIDR (1-31)">
+            <!-- PREVIEW CARD -->
+            <div class="hero-visual">
+                <div class="preview-card">
+                    <div class="preview-topbar">
+                        <div class="preview-dot pd-red"></div>
+                        <div class="preview-dot pd-yellow"></div>
+                        <div class="preview-dot pd-green"></div>
+                        <div class="preview-url">avocadosnetwork.com/network-calculator</div>
                     </div>
-                </div>
-                <div id="formRedes" class="col-auto d-flex align-items-end">
-                    <button id="btnRedes" type="submit" class="btn btn-primary btn-calcular">
-                        Calcular Red
-                    </button>
-                </div>
-            </form>
-
-            <div class="container mt-3">
-                <form id="formRedes2" class="row justify-content-center g-3" style="visibility: hidden">
-                    <div id="divSubred" class="col-auto">
-                        <div class="input-group">
-                            <!-- H4: id único para este addon -->
-                            <span class="input-group-text" id="basic-addon-subred">Subred:</span>
-                            <input type="number" class="form-control" aria-describedby="basic-addon-subred"
-                                id="inputSubred" placeholder="0" min="0">
-                            <button id="btnsubredes" type="button" class="btn btn-outline-secondary">Calcular</button>
+                    <div class="preview-body">
+                        <div class="preview-header-bar">
+                            <span class="ph-title">Network Calculator</span>
+                            <span class="ph-badge">By Avocado's Network</span>
+                        </div>
+                        <div class="preview-inputs">
+                            <div class="preview-field">
+                                <div class="preview-field-label">Octeto 1</div>
+                                <div class="preview-field-input highlight">192</div>
+                            </div>
+                            <div class="preview-field">
+                                <div class="preview-field-label">Octeto 2</div>
+                                <div class="preview-field-input">168</div>
+                            </div>
+                            <div class="preview-field">
+                                <div class="preview-field-label">Octeto 3</div>
+                                <div class="preview-field-input">10</div>
+                            </div>
+                            <div class="preview-field">
+                                <div class="preview-field-label">Octeto 4</div>
+                                <div class="preview-field-input" style="opacity:0.55;">0</div>
+                            </div>
+                            <div class="preview-field">
+                                <div class="preview-field-label">CIDR</div>
+                                <div class="preview-field-input highlight">/24</div>
+                            </div>
+                            <div class="preview-btn-mock">Calcular →</div>
+                        </div>
+                        <div class="preview-result">
+                            <div class="preview-result-title">📊 Resultados — Red Clase C</div>
+                            <div class="preview-result-rows">
+                                <div class="preview-result-row">
+                                    <span class="prr-label">Máscara de subred</span>
+                                    <span class="prr-value">255.255.255.0</span>
+                                </div>
+                                <div class="preview-result-row">
+                                    <span class="prr-label">Hosts utilizables</span>
+                                    <span class="prr-value">254</span>
+                                </div>
+                                <div class="preview-result-row">
+                                    <span class="prr-label">Broadcast</span>
+                                    <span class="prr-value">192.168.10.255</span>
+                                </div>
+                                <div class="preview-result-row">
+                                    <span class="prr-label">Subredes posibles</span>
+                                    <span class="prr-value">1</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="col-auto">
-                        <div class="input-group">
-                            <span class="input-group-text" id="basic-addon-hostp">Host personalizado:</span>
-                            <input type="number" class="form-control" aria-describedby="basic-addon-hostp"
-                                id="inputHostP" placeholder="0" min="0">
-                            <button id="btnHostP" type="button" class="btn btn-outline-success">Mostrar</button>
-                        </div>
-                    </div>
-                    <div id="btnVLSM" class="col-auto">
-                        <button type="button" class="btn btn-secondary">Calculadora VLSM</button>
-                    </div>
-                    <!-- H3: Limpiar ahora tiene id y type para que funcione el event listener -->
-                    <div id="divLimpiar" class="col-auto">
-                        <button id="btnLimpiar" type="button" class="btn btn-danger">Limpiar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+                </div>
 
-        <div class="container"><hr></div>
-
-        <div class="container">
-            <div id="formRedesVLSM" class="row justify-content-center" style="visibility: hidden">
-                <div class="col-auto">
-                    <div class="input-group">
-                        <span class="input-group-text" id="basic-addon-vlsm-n">Número de subredes:</span>
-                        <input type="number" class="form-control" aria-describedby="basic-addon-vlsm-n"
-                            id="inputVLSM" placeholder="0" min="1" max="1000">
-                        <button id="btnVLSM1" type="button" class="btn btn-outline-primary">Iniciar</button>
+                <!-- Floating badges -->
+                <div class="float-badge float-badge-1">
+                    <span class="fb-icon">🔢</span>
+                    <div>
+                        <div style="font-size:0.68rem;color:var(--text-muted);">Subredes</div>
+                        <div>VLSM soportado</div>
                     </div>
                 </div>
-                <div class="col-auto" style="visibility: hidden">
-                    <div id="divSig" class="input-group">
-                        <!-- H2: "ASD" reemplazado por texto significativo; se actualiza desde JS -->
-                        <span class="input-group-text" id="basic-addon4">Hosts subred 1:</span>
-                        <input type="number" class="form-control" aria-describedby="basic-addon4"
-                            id="inputVLSM2" placeholder="Número de hosts requeridos" min="1">
-                        <button id="btnVLSM2" type="button" class="btn btn-outline-info">Siguiente</button>
+                <div class="float-badge float-badge-2">
+                    <span class="fb-icon">⚡</span>
+                    <div>
+                        <div style="font-size:0.68rem;color:var(--text-muted);">Cálculo</div>
+                        <div>Instantáneo</div>
                     </div>
                 </div>
             </div>
         </div>
+    </section>
 
-        <div class="container">
-            <h2 class="title mb-4" id="titulo-resultados" style="display:none">Resultados</h2>
-        </div>
-        <div class="container container-results" id="items" style="visibility: hidden">
-            <div class="accordion" id="accordionSubred">
-                <!-- resultados dinámicos -->
-            </div>
-        </div>
-
-        <!-- H8: GIF decorativo oculto cuando haya resultados (controlado desde JS) -->
-        <div id="imagenweona" class="container text-center py-4">
-            <img class="img-fluid gif-placeholder" src="https://media4.giphy.com/media/l4pTjiQcFKDddQkGQ/giphy.gif?cid=ecf05e470eb34b91f9735303d3910f831007b2709977ecf5&rid=giphy.gif&ct=s" alt="">
-            <p class="text-muted mt-2">Ingresa los datos de la red y presiona <strong>Calcular Red</strong>.</p>
-        </div>
-    </main>
-
-    <footer>
-        <section class="first_footer">
-            <section class="left">
-                <ul>
-                    <li><a href="mailto:support@avocadosnetwork.com" target="_blank" rel="noopener noreferrer">Contact us</a></li>
-                    <li><a href="https://github.com/AvocadosNetworkLabs" target="_blank" rel="noopener noreferrer">Github</a></li>
-                    <li><a href="https://instagram.com/binary.avocado" target="_blank" rel="noopener noreferrer">Instagram</a></li>
-                </ul>
-            </section>
-            <section class="right">
-                <img src="./Assets/logo_peque_gris.png" width="150px" height="60px" alt="logo avocados network 2021" />
-            </section>
-        </section>
-        <p>
-            © 2021 Avocado's Network. All Rights Reserved.
-            Developed and deploy with 🥑 by <a href="https://github.com/DiPa71" target="_blank" rel="noopener noreferrer">@DiPa71</a>, <a
-                href="https://github.com/NaH-22" target="_blank" rel="noopener noreferrer">@NaH-22</a> and <a href="https://github.com/john024x"
-                target="_blank" rel="noopener noreferrer">@John024x</a>
+    <!-- FEATURES -->
+    <section class="features" id="features">
+        <div class="section-label">Funcionalidades</div>
+        <h2 class="section-title">Todo lo que necesitas para<br>diseñar tu red</h2>
+        <p class="section-subtitle">
+            Una herramienta simple y poderosa para estudiantes, administradores de red y profesionales de TI.
         </p>
+
+        <div class="features-grid">
+            <div class="feature-card fade-in-scroll">
+                <div class="feature-icon">🌐</div>
+                <h3 class="feature-title">Calculadora IPv4</h3>
+                <p class="feature-desc">
+                    Ingresa tu dirección IP y prefijo CIDR para obtener la máscara, rango de hosts, broadcast y más en
+                    segundos.
+                </p>
+            </div>
+            <div class="feature-card fade-in-scroll" style="transition-delay:0.1s">
+                <div class="feature-icon">🔀</div>
+                <h3 class="feature-title">Subredes flexibles</h3>
+                <p class="feature-desc">
+                    Calcula cualquier subred dentro de tu bloque de red. Consulta dirección inicial, final y broadcast
+                    de cada una.
+                </p>
+            </div>
+            <div class="feature-card fade-in-scroll" style="transition-delay:0.2s">
+                <div class="feature-icon">📐</div>
+                <h3 class="feature-title">VLSM avanzado</h3>
+                <p class="feature-desc">
+                    Diseña redes con Variable Length Subnet Masking. Define cuántos hosts necesitas por subred y obtén
+                    la tabla completa.
+                </p>
+            </div>
+            <div class="feature-card fade-in-scroll" style="transition-delay:0.3s">
+                <div class="feature-icon">🔍</div>
+                <h3 class="feature-title">Host personalizado</h3>
+                <p class="feature-desc">
+                    Ubica la dirección exacta de cualquier host en cualquier subred de tu bloque con un par de clics.
+                </p>
+            </div>
+            <div class="feature-card fade-in-scroll" style="transition-delay:0.4s">
+                <div class="feature-icon">🏷️</div>
+                <h3 class="feature-title">Clases A, B, C, D, E</h3>
+                <p class="feature-desc">
+                    Detección automática de clase de red. La calculadora ajusta los campos y validaciones según el
+                    primer octeto.
+                </p>
+            </div>
+            <div class="feature-card fade-in-scroll" style="transition-delay:0.5s">
+                <div class="feature-icon">📱</div>
+                <h3 class="feature-title">100% en el navegador</h3>
+                <p class="feature-desc">
+                    Sin instalaciones, sin cuentas. Funciona desde cualquier dispositivo. Rápido, privado y siempre
+                    disponible.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+        <div class="cta-inner">
+            <h2 class="cta-title">¿Listo para calcular<br>tu red?</h2>
+            <p class="cta-desc">
+                Empieza ahora. Sin registro, sin instalaciones. Solo escribe tu IP y descubre todo sobre tu red.
+            </p>
+            <a href="./calculator.html" class="btn-cta-big" id="cta-try-btn">
+                🚀 Try it out
+            </a>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <div class="footer-brand-name">Avocado's Network</div>
+                <div class="footer-brand-sub">Network Calculator &copy; 2021&ndash;2026</div>
+            </div>
+            <ul class="footer-links">
+                <li><a href="mailto:support@avocadosnetwork.com" target="_blank" rel="noopener noreferrer">Contact
+                        us</a></li>
+                <li><a href="https://github.com/AvocadosNetworkLabs" target="_blank"
+                        rel="noopener noreferrer">GitHub</a></li>
+                <li><a href="https://instagram.com/binary.avocado" target="_blank"
+                        rel="noopener noreferrer">Instagram</a></li>
+            </ul>
+            <div class="footer-logo">
+                <img src="./Assets/logo_peque_gris.png" alt="Avocado's Network logo">
+            </div>
+        </div>
+        <div class="footer-copy">
+            Developed with 🥑 by
+            <a href="https://github.com/DiPa71" target="_blank" rel="noopener noreferrer">@DiPa71</a>,
+            <a href="https://github.com/NaH-22" target="_blank" rel="noopener noreferrer">@NaH-22</a> and
+            <a href="https://github.com/john024x" target="_blank" rel="noopener noreferrer">@John024x</a>
+        </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8" crossorigin="anonymous"></script>
-    <script src="./index.js"></script>
+    <script>
+        // Sticky nav
+        const nav = document.getElementById('nav');
+        window.addEventListener('scroll', () => {
+            nav.classList.toggle('scrolled', window.scrollY > 20);
+        }, { passive: true });
+
+        // Scroll-triggered animations
+        const scrollFade = document.querySelectorAll('.fade-in-scroll');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+        scrollFade.forEach(el => observer.observe(el));
+    </script>
 </body>
+
 </html>

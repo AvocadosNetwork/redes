@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Calculadora de Redes IPv4: subredes, hosts, VLSM y más. Herramienta gratuita de Avocado's Network.">
+    <title>Network Calculator — Avocado's Network</title>
+    <link rel="shortcut icon" type="image/png" href='./Assets/favicon.png' />
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0" crossorigin="anonymous">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Styles -->
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+    <header id="main-header" class="text-white header">
+        <div class="container">
+            <div class="row g-3 align-items-center justify-content-between">
+                <h1 class="col-auto">Network Calculator</h1>
+                <div class="col-auto d-flex gap-2 align-items-center">
+                    <a href="./index.html" aria-label="Volver al inicio">← Inicio</a>
+                    <a href="https://www.avocadosnetwork.com/Nosotros.html" target="_blank" rel="noopener noreferrer">By Avocado's Network</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- H1: Zona de alertas flotantes con aria-live para anunciar cambios de estado -->
+    <main class='main'>
+        <div id="Float-alert" role="status" aria-live="assertive" aria-atomic="true"></div>
+
+        <div class="container">
+            <h2 class="title mb-3">Calculadora Redes IPv4</h2>
+            <!-- H6: Instrucción visible para guiar al usuario sin requerir memoria -->
+            <p class="text-muted mb-4 text-center">Ingresa la dirección IP y el prefijo CIDR para comenzar.</p>
+        </div>
+
+        <div class="container container-body">
+            <form id="formRedes0" class="row justify-content-center g-3">
+                <!-- H5/H6: min/max explícitos, label visibles vía aria-label -->
+                <div class="col-auto">
+                    <label for="oct1" class="form-label input-label">Octeto 1</label>
+                    <input class="input form-control text-center" type="number" id="oct1" name="octeto1"
+                        placeholder="0" min="1" max="255"
+                        aria-label="Primer octeto (1-255)"
+                        onchange="valuePrimerOcteto(this.value)">
+                </div>
+                <div class="col-auto">
+                    <label for="oct2" class="form-label input-label">Octeto 2</label>
+                    <input class="form-control text-center" type="number" id="oct2" name="octeto2"
+                        placeholder="0" min="0" max="255"
+                        aria-label="Segundo octeto (0-255)">
+                </div>
+                <div class="col-auto">
+                    <label for="oct3" class="form-label input-label">Octeto 3</label>
+                    <input class="form-control text-center" type="number" id="oct3" name="octeto3"
+                        placeholder="0" min="0" max="255"
+                        aria-label="Tercer octeto (0-255)">
+                </div>
+                <div class="col-auto">
+                    <!-- H6: title explica por qué está deshabilitado -->
+                    <label for="oct4" class="form-label input-label">Octeto 4</label>
+                    <input class="form-control text-center" type="number" id="oct4" name="octeto4"
+                        placeholder="0" min="0" max="255" disabled
+                        title="El cuarto octeto es la dirección de red y se calcula automáticamente"
+                        aria-label="Cuarto octeto (calculado automáticamente)">
+                </div>
+                <div class="col-auto">
+                    <label for="diagonal" class="form-label input-label">Prefijo CIDR</label>
+                    <div class="input-group">
+                        <span class="input-group-text" id="cidr-addon">/</span>
+                        <input type="number" class="form-control" aria-describedby="cidr-addon"
+                            id="diagonal" placeholder="24" min="1" max="31"
+                            aria-label="Prefijo CIDR (1-31)">
+                    </div>
+                </div>
+                <div id="formRedes" class="col-auto d-flex align-items-end">
+                    <button id="btnRedes" type="submit" class="btn btn-primary btn-calcular">
+                        Calcular Red
+                    </button>
+                </div>
+            </form>
+
+            <div class="container mt-3">
+                <form id="formRedes2" class="row justify-content-center g-3" style="visibility: hidden">
+                    <div id="divSubred" class="col-auto">
+                        <div class="input-group">
+                            <!-- H4: id único para este addon -->
+                            <span class="input-group-text" id="basic-addon-subred">Subred:</span>
+                            <input type="number" class="form-control" aria-describedby="basic-addon-subred"
+                                id="inputSubred" placeholder="0" min="0">
+                            <button id="btnsubredes" type="button" class="btn btn-outline-secondary">Calcular</button>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <div class="input-group">
+                            <span class="input-group-text" id="basic-addon-hostp">Host personalizado:</span>
+                            <input type="number" class="form-control" aria-describedby="basic-addon-hostp"
+                                id="inputHostP" placeholder="0" min="0">
+                            <button id="btnHostP" type="button" class="btn btn-outline-success">Mostrar</button>
+                        </div>
+                    </div>
+                    <div id="btnVLSM" class="col-auto">
+                        <button type="button" class="btn btn-secondary">Calculadora VLSM</button>
+                    </div>
+                    <!-- H3: Limpiar ahora tiene id y type para que funcione el event listener -->
+                    <div id="divLimpiar" class="col-auto">
+                        <button id="btnLimpiar" type="button" class="btn btn-danger">Limpiar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="container"><hr></div>
+
+        <div class="container">
+            <div id="formRedesVLSM" class="row justify-content-center" style="visibility: hidden">
+                <div class="col-auto">
+                    <div class="input-group">
+                        <span class="input-group-text" id="basic-addon-vlsm-n">Número de subredes:</span>
+                        <input type="number" class="form-control" aria-describedby="basic-addon-vlsm-n"
+                            id="inputVLSM" placeholder="0" min="1" max="1000">
+                        <button id="btnVLSM1" type="button" class="btn btn-outline-primary">Iniciar</button>
+                    </div>
+                </div>
+                <div class="col-auto" style="visibility: hidden">
+                    <div id="divSig" class="input-group">
+                        <!-- H2: "ASD" reemplazado por texto significativo; se actualiza desde JS -->
+                        <span class="input-group-text" id="basic-addon4">Hosts subred 1:</span>
+                        <input type="number" class="form-control" aria-describedby="basic-addon4"
+                            id="inputVLSM2" placeholder="Número de hosts requeridos" min="1">
+                        <button id="btnVLSM2" type="button" class="btn btn-outline-info">Siguiente</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <h2 class="title mb-4" id="titulo-resultados" style="display:none">Resultados</h2>
+        </div>
+        <div class="container container-results" id="items" style="visibility: hidden">
+            <div class="accordion" id="accordionSubred">
+                <!-- resultados dinámicos -->
+            </div>
+        </div>
+
+        <!-- H8: GIF decorativo oculto cuando haya resultados (controlado desde JS) -->
+        <div id="imagenweona" class="container text-center py-4">
+            <img class="img-fluid gif-placeholder" src="https://media4.giphy.com/media/l4pTjiQcFKDddQkGQ/giphy.gif?cid=ecf05e470eb34b91f9735303d3910f831007b2709977ecf5&rid=giphy.gif&ct=s" alt="">
+            <p class="text-muted mt-2">Ingresa los datos de la red y presiona <strong>Calcular Red</strong>.</p>
+        </div>
+    </main>
+
+    <footer>
+        <section class="first_footer">
+            <section class="left">
+                <ul>
+                    <li><a href="mailto:support@avocadosnetwork.com" target="_blank" rel="noopener noreferrer">Contact us</a></li>
+                    <li><a href="https://github.com/AvocadosNetworkLabs" target="_blank" rel="noopener noreferrer">Github</a></li>
+                    <li><a href="https://instagram.com/binary.avocado" target="_blank" rel="noopener noreferrer">Instagram</a></li>
+                </ul>
+            </section>
+            <section class="right">
+                <img src="./Assets/logo_peque_gris.png" width="150px" height="60px" alt="logo avocados network 2021" />
+            </section>
+        </section>
+        <p>
+            © 2021 Avocado's Network. All Rights Reserved.
+            Developed and deploy with 🥑 by <a href="https://github.com/DiPa71" target="_blank" rel="noopener noreferrer">@DiPa71</a>, <a
+                href="https://github.com/NaH-22" target="_blank" rel="noopener noreferrer">@NaH-22</a> and <a href="https://github.com/john024x"
+                target="_blank" rel="noopener noreferrer">@John024x</a>
+        </p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8" crossorigin="anonymous"></script>
+    <script src="./index.js"></script>
+</body>
+</html>
