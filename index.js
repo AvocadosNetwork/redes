@@ -6,7 +6,7 @@ const octb = []; //octeto broadcast
 const mask = []; //mascara de subred
 const vlsm = []; //vlsm
 
-let contadorOcteto = v1 = v2 = 0;
+let contadorOcteto = 0, v1 = 0, v2 = 0;
 let subredes, host;
 let tipoClase = ' ';
 let contadorItems = 0;
@@ -62,7 +62,7 @@ function warningVLSM1(e){
 
 function limpiarVLSM(){
     contadorVLSM = 1;
-    for (let i = 1; i <= 1000; i++){
+    for (let i = 1; i <= numVLSM; i++){
         vlsm[i] = 0;
     }
     inpVLSM2.value = "";
@@ -73,14 +73,9 @@ function limpiarVLSM(){
 
 function calcularVLSM(){
     //ordenar de mayor a menor
-    for (let i = 1; i <= numVLSM; i++){
-        for (let j = 1; j <= numVLSM; j++){
-            if(vlsm[j] < vlsm[i]){
-                c1 = vlsm[i];
-                vlsm[i] = vlsm[j];
-                vlsm[j] = c1;
-            }
-        }
+    const vlsmSlice = vlsm.slice(1, numVLSM + 1).sort((a, b) => b - a);
+    for (let i = 0; i < numVLSM; i++) {
+        vlsm[i + 1] = vlsmSlice[i];
     }
     
     //Inicia la tabla
@@ -178,7 +173,7 @@ function calcularVLSM(){
     accordionHeader.id = `heading${contadorItems}`
     let btnAccordion = document.createElement('button');
     btnAccordion.className = 'accordion-button collapsed';
-    btnAccordion.type - 'button';
+    btnAccordion.type = 'button';
     btnAccordion.setAttribute('data-bs-toggle','collapse')
     btnAccordion.textContent= `VLSM`
     btnAccordion.setAttribute('data-bs-target',`#collapse${contadorItems}`)
@@ -200,11 +195,6 @@ function calcularVLSM(){
     items.appendChild(divAccordionitem);
     contadorItems++;
 
-    let orden = "";
-    for (let i = 1; i <= numVLSM; i++){
-        orden = orden + vlsm[i] + '|';
-    }
-    console.log('orden: ' + orden);
 }
 
 function octetoInicial(numx){
@@ -253,17 +243,12 @@ function warningVLSM2(e){
     if(btnVLSM2.textContent == 'Calcular'){
         vlsm[contadorVLSM] = parseInt(inpVLSM2.value);
         let vector = "";
-        inpVLSM2.disabled = 'true';
-        for (let i = 1; i <= numVLSM; i++){
-            vector = vector + vlsm[i] + '|';
-        }
-        console.log('vector: ' + vector);
-        btnVLSM2.disabled = 'true';
+        inpVLSM2.disabled = true;
+        btnVLSM2.disabled = true;
         calcularVLSM();
     }
     if(contadorVLSM <= numVLSM && btnVLSM2.textContent == 'Siguiente'){
         if(!inpVLSM2.value || inpVLSM2.value > (2**host)-2 || inpVLSM2.value == 0){
-            console.log(host);
             avientaleLaALarma(`Num de Host invalido 1 - ${(2**host)-2} `);
         } else {
             vlsm[contadorVLSM] = parseInt(inpVLSM2.value);
@@ -317,7 +302,6 @@ function CalcularRed(){
     oct[2] = parseInt(document.getElementById("oct3").value)
     oct[3] = 0;
     let diagonal = document.getElementById("diagonal").value
-    console.log(`El valor de la diagonal es ${diagonal} para el octeto de valor ${oct[0]}`)
     //establece el numero de Subredes y Hosts
     switch(tipoClase){
         case 'A':
@@ -348,7 +332,7 @@ function CalcularRed(){
     tituloUno.id = `heading${contadorItems}`
     let btnTituloUno = document.createElement('button');
     btnTituloUno.className = 'accordion-button';
-    btnTituloUno.type - 'button';
+    btnTituloUno.type = 'button';
     btnTituloUno.setAttribute('data-bs-toggle','collapse')
     btnTituloUno.textContent= `Red ${oct[0]}.${oct[1]}.${oct[2]}.${oct[3]} / ${diagonal}`
     btnTituloUno.setAttribute('data-bs-target',`#collapse${contadorItems}`)
@@ -382,11 +366,6 @@ function CalcularRed(){
     divUno.appendChild(tituloUno);
     divUno.appendChild(divdos);
     items.appendChild(divUno);
-
-    //consoles log para pruebas
-    console.log(`Red Clase ${tipoClase}: ${oct[0]}.${oct[1]}.${oct[2]}.${oct[3]}`);
-    console.log(`Mascara de subred: ${mask[0]}.${mask[1]}.${mask[2]}.${mask[3]}`);
-    console.log(`Numero de Subredes: ${2**subredes} | Numero de Host: ${2**host}`);
 
     contadorItems++;
 }
@@ -503,7 +482,7 @@ function CalcularSubred(){
     accordionHeader.id = `heading${contadorItems}`
     let btnAccordion = document.createElement('button');
     btnAccordion.className = 'accordion-button collapsed';
-    btnAccordion.type - 'button';
+    btnAccordion.type = 'button';
     btnAccordion.setAttribute('data-bs-toggle','collapse')
     btnAccordion.textContent= `Subred: ${numSubred}`
     btnAccordion.setAttribute('data-bs-target',`#collapse${contadorItems}`)
@@ -542,12 +521,6 @@ function CalcularSubred(){
     items.appendChild(divAccordionitem);
 
 
-    //primeras impresiones de la wea qleada
-    console.log("Subred No: "+ numSubred + " ------------------------------");
-    console.log("Subred........: "+octi[0]+"."+octi[1]+"."+octi[2]+"."+octi[3]);
-    console.log("host primero..: "+octi[0]+"."+octi[1]+"."+octi[2]+"."+(octi[3]+1));
-    console.log("host ultimo...: "+octf[0]+"."+octf[1]+"."+octf[2]+"."+octf[3]);
-    console.log("Broadcast.....: "+octb[0]+"."+octb[1]+"."+octb[2]+"."+octb[3]);
     contadorItems++;
 }
 
@@ -613,7 +586,7 @@ function warningHP(e){
 
 function avientaleLaALarma(text1){
     let w1 = document.createElement('div');
-    cont = document.getElementById('Float-alert');
+    let cont = document.getElementById('Float-alert');
     w1.className = 'alert alert-danger alert-dismissible fade show';
     w1.setAttribute('role','alert')
     let w2 = document.createElement('strong');
