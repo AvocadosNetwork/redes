@@ -2,15 +2,39 @@
     border: 1px solid rgb(0, 0, 0, 0.5)
 }
 
+/* H5: Feedback visual claro en campos con foco */
+.form-control:focus {
+    border-color: #74d680;
+    box-shadow: 0 0 0 0.2rem rgba(116, 214, 128, 0.35);
+    outline: none;
+}
+
+/* H6: Apariencia diferenciada para campos deshabilitados, con cursor que indica que no es editable */
+.form-control:disabled {
+    background-color: #e9ecef;
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* H6: Labels visibles encima de los inputs */
+.input-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 2px;
+}
+
 .main{
     position: relative;
 }
+
 a{
-    text-decoration: none !important; 
+    text-decoration: none !important;
     color: #000;
 }
+
 .header{
-    color:rgb(46, 46, 46) !important;
+    color: rgb(46, 46, 46) !important;
     display: block;
     margin: 0 auto;
     width: 100%;
@@ -29,71 +53,99 @@ a{
     letter-spacing: 0px;
 }
 
+/* H1: Alertas flotantes con z-index alto para siempre estar visibles */
 #Float-alert{
-    position: absolute;
-    top: 0;
+    position: fixed;
+    top: 16px;
     right: 20px;
+    z-index: 1055;
+    max-width: 360px;
 }
+
 .container-body{
-    background-color:rgb(206, 206, 206) ;
+    background-color: rgb(206, 206, 206);
     border-radius: 10px;
     margin-left: auto;
     margin-right: auto;
-}
-.title{
-    margin-top: 50px;
-    color:rgb(0, 0, 0);
-    font-weight: bold;
-}
-#btnRedes{
-    background-color: #fff;
-    border: 1px solid #000;
-    color: #000;
-    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+    padding: 24px 16px;
 }
 
-#btnRedes:hover{
-    background-color: #000;
-    border: 1px solid #fff;
+.title{
+    margin-top: 50px;
+    color: rgb(0, 0, 0);
+    font-weight: bold;
+}
+
+/* H4: Botón principal con estilo coherente con la identidad visual */
+.btn-calcular {
+    background-color: #74d680;
+    border: 1px solid #4cad5a;
+    color: #1a1a1a;
+    font-weight: 600;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.btn-calcular:hover:not(:disabled) {
+    background-color: #4cad5a;
+    border-color: #3a8a45;
     color: #fff;
 }
+
+/* H1: Botón deshabilitado comunica visualmente que la acción ya fue ejecutada */
+.btn-calcular:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
 .container-results{
     background-color: rgb(206, 206, 206);
     border-radius: 10px;
     padding: 20px;
     margin-top: 50px;
 }
+
 .accordion-button{
     margin-top: 10px;
     margin-bottom: 10px;
 }
 
+/* H8: GIF placeholder sin altura fija que no empuje el contenido */
+.gif-placeholder {
+    max-height: 200px;
+    opacity: 0.85;
+}
+
 footer{
     margin-top: 60px;
     background-color: #c1f68a;
-    }
-    footer p{
-        margin: 0 !important;
-        text-align: center;
-    }
-    footer p a{
-        text-decoration: none;
-    }
-    footer .first_footer{
-        display:flex;
-        width: 100%;
-        height: 150px;
-        background-color:#c1f68a;
-    }
-    footer section{
-        display: flex;
-        width: 50%;
-        justify-content: center;
-        align-items: center;
-    }
-    footer .left ul{
-        font-size: 1.4rem;
-        font-weight: 500;
-        line-height: 1.8rem;
-        list-style: none;
-    }
+}
+
+footer p{
+    margin: 0 !important;
+    text-align: center;
+}
+
+footer p a{
+    text-decoration: none;
+}
+
+footer .first_footer{
+    display: flex;
+    width: 100%;
+    height: 150px;
+    background-color: #c1f68a;
+}
+
+footer section{
+    display: flex;
+    width: 50%;
+    justify-content: center;
+    align-items: center;
+}
+
+footer .left ul{
+    font-size: 1.4rem;
+    font-weight: 500;
+    line-height: 1.8rem;
+    list-style: none;
+}
