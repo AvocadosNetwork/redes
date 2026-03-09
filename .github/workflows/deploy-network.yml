@@ -8,10 +8,15 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on:
+      - self-hosted
+      - linux
+      - x64
     permissions:
       contents: read
       packages: write
+    env:
+      KUBECONFIG: /home/pcc/.kube/config
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,14 +40,11 @@ jobs:
             ghcr.io/avocadosnetwork/redes:latest
             ghcr.io/avocadosnetwork/redes:${{ github.sha }}
 
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v4
-
-      - name: Write kubeconfig
+      - name: Verify local kubeconfig
         run: |
-          mkdir -p "$HOME/.kube"
-          printf '%s' "${{ secrets.KUBE_CONFIG }}" > "$HOME/.kube/config"
-          chmod 600 "$HOME/.kube/config"
+          test -f "$KUBECONFIG"
+          kubectl version --client
+          kubectl get nodes
 
       - name: Create or update GHCR pull secret
         run: |
