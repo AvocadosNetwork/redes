@@ -15,55 +15,24 @@ spec:
     spec:
       securityContext:
         runAsNonRoot: true
-        runAsUser: 101
-        runAsGroup: 101
-        fsGroup: 101
+        runAsUser: 65532
+        runAsGroup: 65532
+        fsGroup: 65532
         seccompProfile:
           type: RuntimeDefault
       nodeSelector:
         nodepool: dev
-      initContainers:
-        - name: prepare-site
-          image: alpine:3.20
-          securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop: ["ALL"]
-          command:
-            - sh
-            - -c
-            - |
-              set -eu
-              base64 -d /bundle/site.tgz.b64 > /tmp/site.tgz
-              tar -xzf /tmp/site.tgz -C /usr/share/nginx/html
-          volumeMounts:
-            - name: bundle
-              mountPath: /bundle
-              readOnly: true
-            - name: site
-              mountPath: /usr/share/nginx/html
       containers:
         - name: web
-          image: busybox:1.36
-          imagePullPolicy: IfNotPresent
+          image: ghcr.io/avocadosnetwork/redes:latest
+          imagePullPolicy: Always
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
               drop: ["ALL"]
-          command:
-            - httpd
-            - -f
-            - -p
-            - "8080"
-            - -h
-            - /srv
           ports:
             - containerPort: 8080
               name: http
-          volumeMounts:
-            - name: site
-              mountPath: /srv
-              readOnly: true
           resources:
             requests:
               cpu: 50m
@@ -83,9 +52,5 @@ spec:
               port: 8080
             initialDelaySeconds: 5
             periodSeconds: 10
-      volumes:
-        - name: bundle
-          configMap:
-            name: redes-site
-        - name: site
-          emptyDir: {}
+      imagePullSecrets:
+        - name: ghcr-creds

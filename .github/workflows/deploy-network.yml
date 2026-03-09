@@ -9,30 +9,52 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Deploy Over SSH
-        uses: appleboy/ssh-action@v1.2.0
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
         with:
-          host: ${{ secrets.DEPLOY_HOST }}
-          username: ${{ secrets.DEPLOY_USER }}
-          key: ${{ secrets.DEPLOY_SSH_KEY }}
-          script_stop: true
-          script: |
-            set -eu
-            cd /opt/k3s/apps/redes
-            git fetch origin main
-            git checkout main
-            git reset --hard origin/main
-            kubectl create namespace network --dry-run=client -o yaml | kubectl apply -f -
-            kubectl -n network create configmap redes-site \
-              --from-file=index.html \
-              --from-file=calculator.html \
-              --from-file=index.js \
-              --from-file=style.css \
-              --from-file=Assets \
-              --dry-run=client -o yaml | kubectl apply -f -
-            kubectl apply -f namespace.yaml -f service.yaml -f middleware.yaml -f ingress.yaml -f deployment.yaml
-            kubectl -n network rollout status deployment/redes --timeout=180s
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/avocadosnetwork/redes:latest
+            ghcr.io/avocadosnetwork/redes:${{ github.sha }}
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Write kubeconfig
+        run: |
+          mkdir -p "$HOME/.kube"
+          printf '%s' "${{ secrets.KUBE_CONFIG }}" > "$HOME/.kube/config"
+          chmod 600 "$HOME/.kube/config"
+
+      - name: Create or update GHCR pull secret
+        run: |
+          kubectl create namespace network --dry-run=client -o yaml | kubectl apply -f -
+          kubectl -n network create secret docker-registry ghcr-creds \
+            --docker-server=ghcr.io \
+            --docker-username="${{ secrets.GHCR_USERNAME }}" \
+            --docker-password="${{ secrets.GHCR_TOKEN }}" \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl apply -f namespace.yaml -f service.yaml -f middleware.yaml -f ingress.yaml -f deployment.yaml
+          kubectl -n network set image deployment/redes web=ghcr.io/avocadosnetwork/redes:${{ github.sha }}
+          kubectl -n network rollout status deployment/redes --timeout=180s

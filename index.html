@@ -144,6 +144,40 @@
             color: var(--text-primary);
         }
 
+        .version-badge {
+            position: fixed;
+            right: 16px;
+            bottom: 16px;
+            z-index: 250;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: var(--radius-pill);
+            background: rgba(26, 46, 27, 0.88);
+            color: #f4f7f4;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            box-shadow: var(--shadow-md);
+            border: 1px solid rgba(193, 246, 138, 0.22);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .version-badge span {
+            color: var(--green-light);
+        }
+
+        @media (max-width: 640px) {
+            .version-badge {
+                right: 12px;
+                bottom: 12px;
+                padding: 9px 12px;
+                font-size: 0.72rem;
+            }
+        }
+
         /* ============================
            HERO
            ============================ */
@@ -1238,6 +1272,9 @@
 
         scrollFade.forEach(el => observer.observe(el));
     </script>
+    <div class="version-badge" aria-label="Site version">
+        Version <span>1d06207</span>
+    </div>
 </body>
 
 </html>
