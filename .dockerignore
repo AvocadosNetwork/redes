@@ -1,0 +1,8 @@
+.git
+README.md
+namespace.yaml
+service.yaml
+middleware.yaml
+ingress.yaml
+deployment.yaml
+site-configmap.yaml

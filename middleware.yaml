@@ -1,0 +1,41 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: redes-security-headers
+  namespace: network
+spec:
+  headers:
+    sslRedirect: true
+    stsIncludeSubdomains: true
+    stsPreload: true
+    stsSeconds: 63072000
+    forceSTSHeader: true
+    frameDeny: true
+    contentTypeNosniff: true
+    browserXssFilter: true
+    referrerPolicy: strict-origin-when-cross-origin
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: redes-ratelimit
+  namespace: network
+spec:
+  rateLimit:
+    average: 30
+    burst: 60
+    period: 1s
+    sourceCriterion:
+      ipStrategy:
+        depth: 1
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: redes-chain
+  namespace: network
+spec:
+  chain:
+    middlewares:
+      - name: redes-ratelimit
+      - name: redes-security-headers

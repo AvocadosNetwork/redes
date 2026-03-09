@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redes
+  namespace: network
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redes
+  template:
+    metadata:
+      labels:
+        app: redes
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        runAsGroup: 101
+        fsGroup: 101
+        seccompProfile:
+          type: RuntimeDefault
+      nodeSelector:
+        nodepool: dev
+      initContainers:
+        - name: prepare-site
+          image: alpine:3.20
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          command:
+            - sh
+            - -c
+            - |
+              set -eu
+              base64 -d /bundle/site.tgz.b64 > /tmp/site.tgz
+              tar -xzf /tmp/site.tgz -C /usr/share/nginx/html
+          volumeMounts:
+            - name: bundle
+              mountPath: /bundle
+              readOnly: true
+            - name: site
+              mountPath: /usr/share/nginx/html
+      containers:
+        - name: web
+          image: busybox:1.36
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          command:
+            - httpd
+            - -f
+            - -p
+            - "8080"
+            - -h
+            - /srv
+          ports:
+            - containerPort: 8080
+              name: http
+          volumeMounts:
+            - name: site
+              mountPath: /srv
+              readOnly: true
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 250m
+              memory: 128Mi
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      volumes:
+        - name: bundle
+          configMap:
+            name: redes-site
+        - name: site
+          emptyDir: {}
