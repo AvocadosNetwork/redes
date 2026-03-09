@@ -1,0 +1,38 @@
+name: Deploy Network Site
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy Over SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script_stop: true
+          script: |
+            set -eu
+            cd /opt/k3s/apps/redes
+            git fetch origin main
+            git checkout main
+            git reset --hard origin/main
+            kubectl create namespace network --dry-run=client -o yaml | kubectl apply -f -
+            kubectl -n network create configmap redes-site \
+              --from-file=index.html \
+              --from-file=calculator.html \
+              --from-file=index.js \
+              --from-file=style.css \
+              --from-file=Assets \
+              --dry-run=client -o yaml | kubectl apply -f -
+            kubectl apply -f namespace.yaml -f service.yaml -f middleware.yaml -f ingress.yaml -f deployment.yaml
+            kubectl -n network rollout status deployment/redes --timeout=180s
