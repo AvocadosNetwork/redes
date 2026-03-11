@@ -769,6 +769,71 @@
         }
 
         /* ============================
+           TEAM SECTION
+           ============================ */
+        .team-section {
+            padding: 100px 5%;
+        }
+
+        .team-grid {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            flex-wrap: wrap;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .team-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            background: var(--bg-card);
+            border: 1.5px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 32px 36px;
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition);
+            text-decoration: none;
+            min-width: 200px;
+        }
+
+        .team-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-md);
+            border-color: rgba(116, 214, 128, 0.4);
+        }
+
+        .team-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--green-lighter);
+            transition: border-color var(--transition), transform var(--transition);
+        }
+
+        .team-card:hover .team-avatar {
+            border-color: var(--green-primary);
+            transform: scale(1.05);
+        }
+
+        .team-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .team-role {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            margin: 0;
+        }
+
+        /* ============================
            CTA SECTION
            ============================ */
         .cta-section {
@@ -1034,7 +1099,7 @@
             <span class="nav-logo-text">Network<span>Calc</span></span>
         </a>
         <a href="./calculator.html" class="nav-cta" id="nav-try-btn">
-            Try it out
+            Calculadora
             <span style="font-size:0.9rem;">→</span>
         </a>
     </nav>
@@ -1049,26 +1114,26 @@
             <div class="hero-content">
                 <div class="hero-badge">
                     <span class="dot"></span>
-                    Herramienta gratuita de redes
+                    Proyecto universitario
                 </div>
 
                 <h1 class="hero-title">
-                    Calcula subredes<br>
-                    IPv4 <span class="highlight">al instante</span>
+                    Calculadora de<br>
+                    redes <span class="highlight">IPv4</span>
                 </h1>
 
                 <p class="hero-subtitle">
-                    Obtén máscara de subred, dirección de broadcast, hosts utilizables y más con solo ingresar tu IP y
-                    prefijo CIDR. También soporta VLSM.
+                    Herramienta creada como proyecto académico para la materia de Redes de Computadoras.
+                    Calcula subredes, máscaras, broadcast, hosts utilizables y VLSM directamente en tu navegador.
                 </p>
 
                 <div class="hero-actions">
                     <a href="./calculator.html" class="btn-try" id="try-it-out">
-                        Try it out
+                        Abrir calculadora
                         <span class="arrow">→</span>
                     </a>
-                    <a href="#features" class="btn-ghost">
-                        Ver funcionalidades
+                    <a href="#team" class="btn-ghost">
+                        Conoce al equipo
                     </a>
                 </div>
             </div>
@@ -1156,9 +1221,9 @@
     <!-- FEATURES -->
     <section class="features" id="features">
         <div class="section-label">Funcionalidades</div>
-        <h2 class="section-title">Todo lo que necesitas para<br>diseñar tu red</h2>
+        <h2 class="section-title">Todo lo que necesitas para<br>tus ejercicios de redes</h2>
         <p class="section-subtitle">
-            Una herramienta simple y poderosa para estudiantes, administradores de red y profesionales de TI.
+            Herramienta pensada para estudiantes de redes de computadoras. Calcula, visualiza y aprende.
         </p>
 
         <div class="features-grid">
@@ -1212,15 +1277,42 @@
         </div>
     </section>
 
+    <!-- TEAM -->
+    <section class="team-section" id="team">
+        <div class="section-label">Equipo</div>
+        <h2 class="section-title">Desarrollado por</h2>
+        <p class="section-subtitle">
+            Proyecto creado como parte de la materia de Redes de Computadoras en la universidad. Construido con JavaScript puro y desplegado en Kubernetes.
+        </p>
+
+        <div class="team-grid">
+            <a href="https://github.com/Mrroboto9819" target="_blank" rel="noopener noreferrer" class="team-card fade-in-scroll">
+                <img src="https://github.com/Mrroboto9819.png" alt="DiPa71" class="team-avatar" />
+                <h3 class="team-name">DiPa71</h3>
+                <p class="team-role">Developer</p>
+            </a>
+            <a href="https://github.com/NaH-22" target="_blank" rel="noopener noreferrer" class="team-card fade-in-scroll" style="transition-delay:0.1s">
+                <img src="https://github.com/NaH-22.png" alt="NaH-22" class="team-avatar" />
+                <h3 class="team-name">NaH-22</h3>
+                <p class="team-role">Developer</p>
+            </a>
+            <a href="https://github.com/juanfuentes-code" target="_blank" rel="noopener noreferrer" class="team-card fade-in-scroll" style="transition-delay:0.2s">
+                <img src="https://github.com/juanfuentes-code.png" alt="John024x" class="team-avatar" />
+                <h3 class="team-name">John024x</h3>
+                <p class="team-role">Developer</p>
+            </a>
+        </div>
+    </section>
+
     <!-- CTA -->
     <section class="cta-section">
         <div class="cta-inner">
             <h2 class="cta-title">¿Listo para calcular<br>tu red?</h2>
             <p class="cta-desc">
-                Empieza ahora. Sin registro, sin instalaciones. Solo escribe tu IP y descubre todo sobre tu red.
+                Sin registro, sin instalaciones. Solo ingresa tu IP y prefijo CIDR.
             </p>
             <a href="./calculator.html" class="btn-cta-big" id="cta-try-btn">
-                🚀 Try it out
+                Abrir calculadora
             </a>
         </div>
     </section>
@@ -1246,9 +1338,9 @@
         </div>
         <div class="footer-copy">
             Developed with 🥑 by
-            <a href="https://github.com/DiPa71" target="_blank" rel="noopener noreferrer">@DiPa71</a>,
+            <a href="https://github.com/Mrroboto9819" target="_blank" rel="noopener noreferrer">@DiPa71</a>,
             <a href="https://github.com/NaH-22" target="_blank" rel="noopener noreferrer">@NaH-22</a> and
-            <a href="https://github.com/john024x" target="_blank" rel="noopener noreferrer">@John024x</a>
+            <a href="https://github.com/juanfuentes-code" target="_blank" rel="noopener noreferrer">@John024x</a>
         </div>
     </footer>
 

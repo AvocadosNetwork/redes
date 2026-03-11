@@ -14,49 +14,32 @@ jobs:
       - x64
     permissions:
       contents: read
-      packages: write
     env:
       KUBECONFIG: /home/pcc/.kube/config
+      IMAGE_NAME: redes-web
+      IMAGE_TAG: ${{ github.sha }}
+      NAMESPACE: network
+      CTR: /usr/local/bin/ctr
+      CONTAINERD_SOCK: /run/k3s/containerd/containerd.sock
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          tags: |
-            ghcr.io/avocadosnetwork/redes:latest
-            ghcr.io/avocadosnetwork/redes:${{ github.sha }}
-
-      - name: Verify local kubeconfig
+      - name: Build image with BuildKit
         run: |
-          test -f "$KUBECONFIG"
-          kubectl version --client
-          kubectl get nodes
+          sudo buildctl build \
+            --frontend dockerfile.v0 \
+            --local context=. \
+            --local dockerfile=. \
+            --output type=docker,name=$IMAGE_NAME:$IMAGE_TAG,dest=/tmp/$IMAGE_NAME.tar
 
-      - name: Create or update GHCR pull secret
+      - name: Import image into containerd
         run: |
-          kubectl create namespace network --dry-run=client -o yaml | kubectl apply -f -
-          kubectl -n network create secret docker-registry ghcr-creds \
-            --docker-server=ghcr.io \
-            --docker-username="${{ secrets.GHCR_USERNAME }}" \
-            --docker-password="${{ secrets.GHCR_TOKEN }}" \
-            --dry-run=client -o yaml | kubectl apply -f -
+          sudo $CTR -a $CONTAINERD_SOCK -n k8s.io images import /tmp/$IMAGE_NAME.tar
+          rm -f /tmp/$IMAGE_NAME.tar
 
       - name: Deploy to Kubernetes
         run: |
           kubectl apply -f namespace.yaml -f service.yaml -f middleware.yaml -f ingress.yaml -f deployment.yaml
-          kubectl -n network set image deployment/redes web=ghcr.io/avocadosnetwork/redes:${{ github.sha }}
-          kubectl -n network rollout status deployment/redes --timeout=180s
+          kubectl -n $NAMESPACE set image deployment/redes web=$IMAGE_NAME:$IMAGE_TAG
+          kubectl -n $NAMESPACE rollout status deployment/redes --timeout=180s
