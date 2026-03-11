@@ -19,8 +19,6 @@ jobs:
       IMAGE_NAME: redes-web
       IMAGE_TAG: ${{ github.sha }}
       NAMESPACE: network
-      CTR: /usr/local/bin/ctr
-      CONTAINERD_SOCK: /run/k3s/containerd/containerd.sock
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -30,9 +28,45 @@ jobs:
           docker build -t $IMAGE_NAME:$IMAGE_TAG .
           docker save $IMAGE_NAME:$IMAGE_TAG -o /tmp/$IMAGE_NAME.tar
 
-      - name: Import image into containerd
+      - name: Import image into containerd via kubectl
         run: |
-          $CTR -a $CONTAINERD_SOCK -n k8s.io images import /tmp/$IMAGE_NAME.tar
+          # Create a temporary privileged pod to import the image
+          kubectl apply -f - <<YAML
+          apiVersion: v1
+          kind: Pod
+          metadata:
+            name: image-importer
+            namespace: $NAMESPACE
+          spec:
+            nodeSelector:
+              nodepool: dev
+            restartPolicy: Never
+            hostPID: true
+            containers:
+              - name: importer
+                image: alpine:3.20
+                securityContext:
+                  privileged: true
+                command: ["sleep", "300"]
+                volumeMounts:
+                  - name: containerd-sock
+                    mountPath: /run/k3s/containerd/containerd.sock
+            volumes:
+              - name: containerd-sock
+                hostPath:
+                  path: /run/k3s/containerd/containerd.sock
+          YAML
+
+          kubectl wait --for=condition=Ready pod/image-importer -n $NAMESPACE --timeout=60s
+
+          # Import via nsenter into the host
+          kubectl exec -i image-importer -n $NAMESPACE -- \
+            nsenter -t 1 -m -u -i -n -- \
+            ctr -a /run/k3s/containerd/containerd.sock -n k8s.io images import - \
+            < /tmp/$IMAGE_NAME.tar
+
+          # Cleanup
+          kubectl delete pod image-importer -n $NAMESPACE --force --grace-period=0
           rm -f /tmp/$IMAGE_NAME.tar
 
       - name: Deploy to Kubernetes
