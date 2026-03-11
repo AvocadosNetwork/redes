@@ -25,13 +25,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build image with BuildKit
+      - name: Build image with Docker
         run: |
-          buildctl build \
-            --frontend dockerfile.v0 \
-            --local context=. \
-            --local dockerfile=. \
-            --output type=docker,name=$IMAGE_NAME:$IMAGE_TAG,dest=/tmp/$IMAGE_NAME.tar
+          docker build -t $IMAGE_NAME:$IMAGE_TAG .
+          docker save $IMAGE_NAME:$IMAGE_TAG -o /tmp/$IMAGE_NAME.tar
 
       - name: Import image into containerd
         run: |
