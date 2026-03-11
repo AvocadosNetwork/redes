@@ -23,6 +23,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Stamp version in HTML
+        run: |
+          SHORT_SHA=$(echo $IMAGE_TAG | cut -c1-7)
+          sed -i "s|Version <span>[^<]*</span>|Version <span>${SHORT_SHA}</span>|g" index.html calculator.html
+
       - name: Build image with Docker
         run: |
           docker build -t $IMAGE_NAME:$IMAGE_TAG .
