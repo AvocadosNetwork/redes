@@ -27,7 +27,7 @@ jobs:
 
       - name: Build image with BuildKit
         run: |
-          sudo buildctl build \
+          buildctl build \
             --frontend dockerfile.v0 \
             --local context=. \
             --local dockerfile=. \
@@ -35,7 +35,7 @@ jobs:
 
       - name: Import image into containerd
         run: |
-          sudo $CTR -a $CONTAINERD_SOCK -n k8s.io images import /tmp/$IMAGE_NAME.tar
+          $CTR -a $CONTAINERD_SOCK -n k8s.io images import /tmp/$IMAGE_NAME.tar
           rm -f /tmp/$IMAGE_NAME.tar
 
       - name: Deploy to Kubernetes
